@@ -1,6 +1,50 @@
 # Yoga App - Savasana
+> Application full-stack de réservation de sessions de yoga pour le studio Savasana.
 
-Application full-stack de réservation de sessions de yoga pour le studio Savasana.
+<!-- TOC -->
+* [Yoga App - Savasana](#yoga-app---savasana)
+  * [Description](#description)
+  * [Prérequis](#prérequis)
+  * [Structure du projet](#structure-du-projet)
+  * [Installation](#installation)
+    * [1. Installation de la base de données](#1-installation-de-la-base-de-données)
+      * [Option A : Avec Docker (recommandé)](#option-a--avec-docker-recommandé)
+      * [Option B : Installation manuelle de MySQL](#option-b--installation-manuelle-de-mysql)
+    * [2. Installation du Backend](#2-installation-du-backend)
+    * [3. Installation du Frontend](#3-installation-du-frontend)
+  * [Lancement de l'application](#lancement-de-lapplication)
+    * [1. Démarrer la base de données](#1-démarrer-la-base-de-données)
+    * [2. Démarrer le backend](#2-démarrer-le-backend)
+    * [3. Démarrer le frontend](#3-démarrer-le-frontend)
+  * [Comptes de test](#comptes-de-test)
+    * [Compte Administrateur](#compte-administrateur)
+    * [Compte Utilisateur](#compte-utilisateur)
+  * [Commandes utiles](#commandes-utiles)
+    * [Backend](#backend)
+    * [Frontend](#frontend)
+    * [Base de données](#base-de-données)
+  * [Technologies utilisées](#technologies-utilisées)
+    * [Backend](#backend-1)
+    * [Frontend](#frontend-1)
+    * [Outils de développement](#outils-de-développement)
+  * [API Endpoints](#api-endpoints)
+    * [Authentification](#authentification)
+    * [Sessions](#sessions)
+    * [Professeurs](#professeurs)
+    * [Utilisateurs](#utilisateurs)
+  * [Ressources](#ressources)
+  * [Tests](#tests)
+    * [Tests Backend (JUnit + Mockito)](#tests-backend-junit--mockito)
+    * [Tests Frontend Unitaires (Jest)](#tests-frontend-unitaires-jest)
+    * [Tests E2E (Cypress)](#tests-e2e-cypress)
+    * [Visualiser les rapports de couverture](#visualiser-les-rapports-de-couverture)
+  * [Problèmes courants](#problèmes-courants)
+    * [Le backend ne démarre pas](#le-backend-ne-démarre-pas)
+    * [Le frontend ne se connecte pas au backend](#le-frontend-ne-se-connecte-pas-au-backend)
+    * [Problème d'encodage dans la base de données](#problème-dencodage-dans-la-base-de-données)
+  * [Auteurs](#auteurs)
+  * [Licence](#licence)
+<!-- TOC -->
 
 ## Description
 
@@ -290,7 +334,95 @@ Pour importer la collection Postman, suivez la [documentation officielle](https:
 
 ## Tests
 
-_Section à compléter une fois les tests implémentés._
+L'application dispose de tests automatisés pour garantir la qualité du code :
+- **Tests unitaires** : pour tester les composants individuels
+- **Tests d'intégration** : pour tester l'interaction entre les composants
+- **Tests end-to-end (E2E)** : pour tester l'application complète du point de vue utilisateur
+
+### Tests Backend (JUnit + Mockito)
+
+```bash
+# Se placer dans le dossier back
+cd back
+
+# Lancer tous les tests
+mvn clean test
+
+# Générer le rapport de couverture JaCoCo
+mvn clean test jacoco:report
+```
+
+**Rapport de couverture** : après exécution, le rapport JaCoCo est généré dans `back/target/site/jacoco/index.html`
+
+Ouvrez ce fichier dans un navigateur pour visualiser la couverture de code détaillée par package et classe.
+
+**Objectif de couverture** : minimum 80% sur toutes les métriques (instructions, branches, lignes, fonctions)
+
+### Tests Frontend Unitaires (Jest)
+
+```bash
+# Se placer dans le dossier front
+cd front
+
+# Lancer tous les tests unitaires
+npm run test
+
+# Lancer les tests en mode watch (relance automatique)
+npm run test:watch
+
+# Générer le rapport de couverture
+npm run test -- --coverage
+```
+
+**Rapport de couverture** : les résultats s'affichent dans le terminal et un rapport HTML est généré dans `front/coverage/jest/lcov-report/index.html`
+
+**Objectif de couverture** : minimum 80% sur toutes les métriques
+
+### Tests E2E (Cypress)
+
+**IMPORTANT** : Le backend et le frontend doivent être lancés avant d'exécuter les tests E2E.
+
+```bash
+# Terminal 1 : Démarrer la base de données
+docker-compose up -d
+
+# Terminal 2 : Démarrer le backend
+cd back
+mvn spring-boot:run
+
+# Terminal 3 : Démarrer le frontend
+cd front
+npm run start
+
+# Terminal 4 : Lancer les tests E2E
+cd front
+
+# Option 1 : Interface graphique Cypress (recommandé pour le développement)
+npm run e2e
+
+# Option 2 : Mode headless (pour CI/CD)
+npm run e2e:ci
+
+# Générer le rapport de couverture E2E
+npm run e2e:coverage
+```
+
+**Rapport de couverture E2E** : après exécution, le rapport est disponible dans `front/coverage/lcov-report/index.html`
+
+### Visualiser les rapports de couverture
+
+```bash
+# Backend (depuis le dossier back)
+open target/site/jacoco/index.html
+
+# Frontend - Tests unitaires (depuis le dossier front)
+open coverage/jest/lcov-report/index.html
+
+# Frontend - Tests E2E (depuis le dossier front)
+open coverage/lcov-report/index.html
+```
+
+Sur Linux, remplacez `open` par `xdg-open`. Sur Windows, utilisez `start`.
 
 ## Problèmes courants
 
