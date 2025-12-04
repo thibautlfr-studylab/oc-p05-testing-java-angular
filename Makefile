@@ -71,17 +71,17 @@ test-front: ## Lance les tests frontend (Jest)
 	@echo "$(GREEN)Lancement des tests frontend...$(RESET)"
 	cd front && yarn test
 
-test-back: ## Lance les tests backend (JUnit)
+test-back: ## Lance les tests backend (unitaires + intégration si présents)
 	@echo "$(GREEN)Lancement des tests backend...$(RESET)"
-	cd back && mvn clean test
+	cd back && mvn verify
 
-test-unit-front: ## Lance uniquement les tests unitaires frontend
-	@echo "$(GREEN)Lancement des tests unitaires frontend...$(RESET)"
-	cd front && yarn test:unit
+test-back-unit: ## Lance uniquement les tests unitaires backend
+	@echo "$(GREEN)Lancement des tests unitaires backend...$(RESET)"
+	cd back && mvn test
 
-test-integration-front: ## Lance uniquement les tests d'intégration frontend
-	@echo "$(GREEN)Lancement des tests d'intégration frontend...$(RESET)"
-	cd front && yarn test:integration
+test-back-integration: ## Lance uniquement les tests d'intégration backend
+	@echo "$(GREEN)Lancement des tests d'intégration backend...$(RESET)"
+	cd back && mvn failsafe:integration-test
 
 test-e2e: ## Lance les tests E2E avec Cypress
 	@echo "$(GREEN)Lancement des tests E2E...$(RESET)"
@@ -179,9 +179,22 @@ stats-front: ## Statistiques des tests frontend (% intégration)
 		echo "  $(YELLOW)Aucun test trouvé$(RESET)"; \
 	fi
 
-stats-back: ## Statistiques des tests backend
-	@if [ -f back/target/site/jacoco/index.html ]; then \
-		echo "  $(GREEN)Coverage disponible dans: back/target/site/jacoco/index.html$(RESET)"; \
+stats-back: ## Statistiques des tests backend (% intégration)
+	@cd back/src/test/java && \
+	unit=$$(find . -name "*Test.java" 2>/dev/null | wc -l | tr -d ' ') && \
+	integration=$$(find . -name "*IT.java" 2>/dev/null | wc -l | tr -d ' ') && \
+	total=$$((unit + integration)) && \
+	if [ $$total -gt 0 ]; then \
+		pct=$$(awk "BEGIN {printf \"%.2f\", ($$integration / $$total) * 100}"); \
+		echo "  Tests unitaires:      $$unit"; \
+		echo "  Tests d'intégration:  $$integration"; \
+		echo "  Total:                $$total"; \
+		echo "  Pourcentage intégr.:  $$pct%"; \
+		if [ $$(echo "$$pct >= 30" | bc -l) -eq 1 ]; then \
+			echo "  $(GREEN)✓ Objectif OpenClassrooms atteint (≥30%)$(RESET)"; \
+		else \
+			echo "  $(YELLOW)✗ Objectif non atteint (nécessite ≥30%)$(RESET)"; \
+		fi; \
 	else \
 		echo "  $(YELLOW)Lancez 'make coverage-back' pour générer le rapport$(RESET)"; \
 	fi
