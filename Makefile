@@ -98,12 +98,12 @@ coverage-front: ## Génère le coverage frontend (tous les tests)
 coverage-front-unit: ## Génère le coverage frontend (tests unitaires uniquement)
 	@echo "$(GREEN)Génération du coverage frontend unitaire...$(RESET)"
 	cd front && yarn test:coverage:unit
-	@echo "$(BLUE)Rapport: front/coverage/jest/unit/index.html$(RESET)"
+	@echo "$(BLUE)Rapport: front/coverage/unit/index.html$(RESET)"
 
 coverage-front-integration: ## Génère le coverage frontend (tests d'intégration uniquement)
 	@echo "$(GREEN)Génération du coverage frontend intégration...$(RESET)"
 	cd front && yarn test:coverage:integration
-	@echo "$(BLUE)Rapport: front/coverage/jest/integration/index.html$(RESET)"
+	@echo "$(BLUE)Rapport: front/coverage/integration/index.html$(RESET)"
 
 coverage-front-all: ## Génère les deux rapports de coverage frontend séparés
 	@echo "$(GREEN)Génération de tous les rapports frontend...$(RESET)"
@@ -128,6 +128,8 @@ coverage-summary: ## Affiche un résumé des rapports de coverage
 	@echo ""
 	@echo "$(YELLOW)Frontend (Jest):$(RESET)"
 	@echo "  • Global:        front/coverage/jest/index.html"
+	@echo "  • Unitaire:      front/coverage/unit/index.html"
+	@echo "  • Intégration:   front/coverage/integration/index.html"
 	@echo ""
 	@echo "$(YELLOW)Backend (JaCoCo):$(RESET)"
 	@echo "  • Global:        back/target/site/jacoco/index.html"
@@ -151,7 +153,7 @@ stats: ## Affiche les statistiques des tests
 
 stats-front: ## Statistiques des tests frontend (% intégration)
 	@cd front/src && \
-	unit=$$(find . -name "*.unit.spec.ts" 2>/dev/null | wc -l | tr -d ' ') && \
+	unit=$$(find . -name "*.spec.ts" ! -name "*.integration.spec.ts" 2>/dev/null | wc -l | tr -d ' ') && \
 	integration=$$(find . -name "*.integration.spec.ts" 2>/dev/null | wc -l | tr -d ' ') && \
 	total=$$((unit + integration)) && \
 	if [ $$total -gt 0 ]; then \
