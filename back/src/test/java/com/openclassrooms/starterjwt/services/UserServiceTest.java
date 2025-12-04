@@ -38,25 +38,37 @@ public class UserServiceTest {
 
     @Test
     public void testDelete() {
-        userService.delete(1L);
-        verify(userRepository).deleteById(1L);
+        // Given
+        Long userId = 1L;
+
+        // When
+        userService.delete(userId);
+
+        // Then
+        verify(userRepository).deleteById(userId);
     }
 
     @Test
     public void testFindById_found() {
+        // Given
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
+        // When
         User result = userService.findById(1L);
 
+        // Then
         assertEquals(user, result);
     }
 
     @Test
     public void testFindById_notFound() {
+        // Given
         when(userRepository.findById(2L)).thenReturn(Optional.empty());
 
+        // When
         User result = userService.findById(2L);
 
+        // Then
         assertNull(result);
     }
 }

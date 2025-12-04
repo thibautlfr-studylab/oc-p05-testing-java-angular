@@ -44,11 +44,14 @@ public class TeacherServiceTest {
 
     @Test
     public void testFindAll() {
+        // Given
         List<Teacher> teachers = Arrays.asList(teacher1, teacher2);
         when(teacherRepository.findAll()).thenReturn(teachers);
 
+        // When
         List<Teacher> result = teacherService.findAll();
 
+        // Then
         assertEquals(2, result.size());
         assertEquals(teacher1, result.get(0));
         assertEquals(teacher2, result.get(1));
@@ -56,19 +59,25 @@ public class TeacherServiceTest {
 
     @Test
     public void testFindById_found() {
+        // Given
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(teacher1));
 
+        // When
         Teacher result = teacherService.findById(1L);
 
+        // Then
         assertEquals(teacher1, result);
     }
 
     @Test
     public void testFindById_notFound() {
+        // Given
         when(teacherRepository.findById(3L)).thenReturn(Optional.empty());
 
+        // When
         Teacher result = teacherService.findById(3L);
 
+        // Then
         assertNull(result);
     }
 }
