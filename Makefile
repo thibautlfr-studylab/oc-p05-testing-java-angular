@@ -71,17 +71,9 @@ test-front: ## Lance les tests frontend (Jest)
 	@echo "$(GREEN)Lancement des tests frontend...$(RESET)"
 	cd front && yarn test
 
-test-back: ## Lance les tests backend (unitaires + intégration si présents)
+test-back: ## Lance les tests backend
 	@echo "$(GREEN)Lancement des tests backend...$(RESET)"
 	cd back && mvn verify
-
-test-back-unit: ## Lance uniquement les tests unitaires backend
-	@echo "$(GREEN)Lancement des tests unitaires backend...$(RESET)"
-	cd back && mvn test
-
-test-back-integration: ## Lance uniquement les tests d'intégration backend
-	@echo "$(GREEN)Lancement des tests d'intégration backend...$(RESET)"
-	cd back && mvn failsafe:integration-test
 
 test-e2e: ## Lance les tests E2E avec Cypress
 	@echo "$(GREEN)Lancement des tests E2E...$(RESET)"
@@ -119,7 +111,7 @@ coverage-front-all: ## Génère les deux rapports de coverage frontend séparés
 
 coverage-back: ## Génère le coverage backend (JaCoCo)
 	@echo "$(GREEN)Génération du coverage backend...$(RESET)"
-	cd back && mvn clean test
+	cd back && mvn clean verify
 	@echo "$(BLUE)Rapport: back/target/site/jacoco/index.html$(RESET)"
 
 coverage-e2e: ## Génère le coverage E2E
@@ -136,8 +128,6 @@ coverage-summary: ## Affiche un résumé des rapports de coverage
 	@echo ""
 	@echo "$(YELLOW)Frontend (Jest):$(RESET)"
 	@echo "  • Global:        front/coverage/jest/index.html"
-	@echo "  • Unitaire:      front/coverage/jest/unit/index.html"
-	@echo "  • Intégration:   front/coverage/jest/integration/index.html"
 	@echo ""
 	@echo "$(YELLOW)Backend (JaCoCo):$(RESET)"
 	@echo "  • Global:        back/target/site/jacoco/index.html"
@@ -181,8 +171,8 @@ stats-front: ## Statistiques des tests frontend (% intégration)
 
 stats-back: ## Statistiques des tests backend (% intégration)
 	@cd back/src/test/java && \
-	unit=$$(find . -name "*Test.java" 2>/dev/null | wc -l | tr -d ' ') && \
-	integration=$$(find . -name "*IT.java" 2>/dev/null | wc -l | tr -d ' ') && \
+	unit=$$(find . -name "*Test.java" ! -name "*IntegrationTest.java" 2>/dev/null | wc -l | tr -d ' ') && \
+	integration=$$(find . -name "*IntegrationTest.java" 2>/dev/null | wc -l | tr -d ' ') && \
 	total=$$((unit + integration)) && \
 	if [ $$total -gt 0 ]; then \
 		pct=$$(awk "BEGIN {printf \"%.2f\", ($$integration / $$total) * 100}"); \
