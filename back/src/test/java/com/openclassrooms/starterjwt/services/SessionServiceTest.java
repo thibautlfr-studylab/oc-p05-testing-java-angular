@@ -120,11 +120,24 @@ public class SessionServiceTest {
 
     @Test
     public void testNoLongerParticipate_success() {
-        session.getUsers().add(user);
+        User userTarget = new User();
+        userTarget.setId(1L);
+        userTarget.setEmail("target@test.com");
+
+        User userStay = new User();
+        userStay.setId(2L);
+        userStay.setEmail("stay@test.com");
+
+        session.setUsers(new ArrayList<>(Arrays.asList(userTarget, userStay)));
+
         when(sessionRepository.findById(1L)).thenReturn(Optional.of(session));
+
         sessionService.noLongerParticipate(1L, 1L);
-        assertFalse(session.getUsers().contains(user));
+
         verify(sessionRepository).save(session);
+        assertFalse(session.getUsers().contains(userTarget));
+        assertTrue(session.getUsers().contains(userStay));
+        assertEquals(1, session.getUsers().size());
     }
 
     @Test
