@@ -196,7 +196,7 @@ stats-back: ## Statistiques des tests backend (% intégration)
 			echo "  $(YELLOW)✗ Objectif non atteint (nécessite ≥30%)$(RESET)"; \
 		fi; \
 	else \
-		echo "  $(YELLOW)Lancez 'make coverage-back' pour générer le rapport$(RESET)"; \
+		echo "  $(YELLOW)Aucun test trouvé$(RESET)"; \
 	fi
 
 ##@ Nettoyage
