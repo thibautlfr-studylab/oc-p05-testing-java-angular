@@ -113,7 +113,6 @@
                         <exclude>**/dto/**</exclude>
                         <exclude>**/models/**</exclude>
                         <exclude>**/payload/**</exclude>
-                        <exclude>**/mapper/**</exclude>
                         <exclude>**/repository/**</exclude>
                         <exclude>**/security/**</exclude>
                         <exclude>**/exception/**</exclude>
