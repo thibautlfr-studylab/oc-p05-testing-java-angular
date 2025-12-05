@@ -31,7 +31,7 @@ describe('Account spec', () => {
 
     cy.get('input[formControlName=email]').type("test@test.com")
     cy.get('input[formControlName=password]').type("test!1234")
-    cy.get('.mat-raised-button').click()
+    cy.get('button[type=submit]').click()
 
     cy.get('span[routerLink=me]').click()
 
@@ -55,7 +55,7 @@ describe('Account spec', () => {
 
     cy.get('input[formControlName=email]').type("admin@test.com")
     cy.get('input[formControlName=password]').type("test!1234")
-    cy.get('.mat-raised-button').click()
+    cy.get('button[type=submit]').click()
 
     cy.get('span[routerLink=me]').click()
 
@@ -80,13 +80,12 @@ describe('Account spec', () => {
 
     cy.get('input[formControlName=email]').type("test@test.com")
     cy.get('input[formControlName=password]').type("test!1234")
-    cy.get('.mat-raised-button').click()
+    cy.get('button[type=submit]').click()
 
     cy.get('span[routerLink=me]').click()
     
     cy.get('button[color=warn]').click()
     
     cy.url().should('include', '/')
-    // Should be logged out, so maybe check if login button is visible or session cleared
   })
 });
