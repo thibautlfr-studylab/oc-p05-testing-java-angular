@@ -14,7 +14,7 @@ describe('Logout spec', () => {
       body: user
     })
 
-    cy.intercept('GET', '/api/session', []).as('sessions')
+    cy.intercept('GET', '/api/session', []);
 
     cy.get('input[formControlName=email]').type("user@studio.com")
     cy.get('input[formControlName=password]').type("test!1234")

@@ -17,7 +17,7 @@ describe('Login spec', () => {
         method: 'GET',
         url: '/api/session',
       },
-      []).as('session')
+      []);
 
     cy.get('input[formControlName=email]').type("yoga@studio.com")
     cy.get('input[formControlName=password]').type("test!1234")

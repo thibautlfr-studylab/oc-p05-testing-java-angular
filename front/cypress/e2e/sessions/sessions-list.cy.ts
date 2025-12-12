@@ -42,7 +42,7 @@ describe('Sessions List spec', () => {
 
   function loginAndNavigateToSessions(user: any) {
     // Setup intercepts before any navigation
-    cy.intercept('POST', '/api/auth/login', { body: user }).as('login');
+    cy.intercept('POST', '/api/auth/login', { body: user });
     cy.intercept('GET', '/api/session', { body: sessions }).as('sessions');
 
     // Login
@@ -91,9 +91,9 @@ describe('Sessions List spec', () => {
 
   it('should navigate to detail page when clicking Detail button', () => {
     // Setup intercepts
-    cy.intercept('POST', '/api/auth/login', { body: adminUser }).as('login');
+    cy.intercept('POST', '/api/auth/login', { body: adminUser });
     cy.intercept('GET', '/api/session', { body: sessions }).as('sessions');
-    cy.intercept('GET', `/api/session/${sessions[0].id}`, { body: sessions[0] }).as('sessionDetail');
+    cy.intercept('GET', `/api/session/${sessions[0].id}`, { body: sessions[0] });
 
     // Login
     cy.visit('/login');
