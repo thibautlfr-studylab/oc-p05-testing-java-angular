@@ -39,8 +39,8 @@ describe('Account spec', () => {
 
   function loginAndNavigateToAccount(loginUser: any, userDetail: any) {
     // Setup intercepts before any navigation
-    cy.intercept('POST', '/api/auth/login', { body: loginUser }).as('login');
-    cy.intercept('GET', '/api/session', { body: [] }).as('sessions');
+    cy.intercept('POST', '/api/auth/login', { body: loginUser })
+    cy.intercept('GET', '/api/session', { body: [] })
     cy.intercept('GET', `/api/user/${loginUser.id}`, { body: userDetail }).as('userDetail');
 
     // Login
@@ -91,8 +91,8 @@ describe('Account spec', () => {
 
   it('should delete account successfully', () => {
     // Setup intercepts
-    cy.intercept('POST', '/api/auth/login', { body: regularUser }).as('login');
-    cy.intercept('GET', '/api/session', { body: [] }).as('sessions');
+    cy.intercept('POST', '/api/auth/login', { body: regularUser })
+    cy.intercept('GET', '/api/session', { body: [] })
     cy.intercept('GET', `/api/user/${regularUser.id}`, { body: regularUserFull }).as('userDetail');
 
     // Login
