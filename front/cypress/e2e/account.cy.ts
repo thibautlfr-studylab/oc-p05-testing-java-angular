@@ -1,91 +1,122 @@
 describe('Account spec', () => {
-  const user = {
+  const adminUser = {
     id: 1,
-    email: 'test@test.com',
-    lastName: 'LastName',
-    firstName: 'FirstName',
-    admin: false,
-    createdAt: '2023-01-01T00:00:00.000+00:00',
-    updatedAt: '2023-01-01T00:00:00.000+00:00',
-  };
-
-  const admin = {
-    id: 1,
-    email: 'admin@test.com',
-    lastName: 'Admin',
+    username: 'admin@studio.com',
     firstName: 'Admin',
+    lastName: 'User',
     admin: true,
-    createdAt: '2023-01-01T00:00:00.000+00:00',
-    updatedAt: '2023-01-01T00:00:00.000+00:00',
+    token: 'fake-jwt-token'
   };
 
-  it('Check user account information', () => {
-    cy.visit('/login')
+  const regularUser = {
+    id: 2,
+    username: 'user@studio.com',
+    firstName: 'Regular',
+    lastName: 'User',
+    admin: false,
+    token: 'fake-jwt-token'
+  };
 
-    cy.intercept('POST', '/api/auth/login', {
-      body: user
-    })
+  const adminUserFull = {
+    id: 1,
+    email: 'admin@studio.com',
+    firstName: 'Admin',
+    lastName: 'User',
+    admin: true,
+    createdAt: '2023-06-01T00:00:00',
+    updatedAt: '2024-01-10T00:00:00'
+  };
 
-    cy.intercept('GET', '/api/session', []).as('sessions')
-    cy.intercept('GET', '/api/user/1', user).as('user')
+  const regularUserFull = {
+    id: 2,
+    email: 'user@studio.com',
+    firstName: 'Regular',
+    lastName: 'User',
+    admin: false,
+    createdAt: '2024-01-01T00:00:00',
+    updatedAt: '2024-01-15T00:00:00'
+  };
 
-    cy.get('input[formControlName=email]').type("test@test.com")
-    cy.get('input[formControlName=password]').type("test!1234")
-    cy.get('button[type=submit]').click()
+  function loginAndNavigateToAccount(loginUser: any, userDetail: any) {
+    // Setup intercepts before any navigation
+    cy.intercept('POST', '/api/auth/login', { body: loginUser }).as('login');
+    cy.intercept('GET', '/api/session', { body: [] }).as('sessions');
+    cy.intercept('GET', `/api/user/${loginUser.id}`, { body: userDetail }).as('userDetail');
 
-    cy.get('span[routerLink=me]').click()
+    // Login
+    cy.visit('/login');
+    cy.get('input[formControlName=email]').type(loginUser.username);
+    cy.get('input[formControlName=password]').type('test!1234');
+    cy.get('button[type=submit]').click();
+    cy.url().should('include', '/sessions');
 
-    cy.url().should('include', '/me')
-    
-    cy.get('p').contains('Name: FirstName LASTNAME').should('be.visible')
-    cy.get('p').contains('Email: test@test.com').should('be.visible')
-    cy.get('p').contains('You are admin').should('not.exist')
-    cy.get('button[color=warn]').should('be.visible')
-  })
+    // Navigate to account
+    cy.get('span[routerLink=me]').click();
+    cy.wait('@userDetail');
+  }
 
-  it('Check admin account information', () => {
-    cy.visit('/login')
+  it('should display user information', () => {
+    loginAndNavigateToAccount(regularUser, regularUserFull);
 
-    cy.intercept('POST', '/api/auth/login', {
-      body: admin
-    })
+    cy.contains('User information').should('be.visible');
+    cy.contains('Name: Regular USER').should('be.visible');
+    cy.contains('Email: user@studio.com').should('be.visible');
+  });
 
-    cy.intercept('GET', '/api/session', []).as('sessions')
-    cy.intercept('GET', '/api/user/1', admin).as('user')
+  it('should display admin status for admin user', () => {
+    loginAndNavigateToAccount(adminUser, adminUserFull);
 
-    cy.get('input[formControlName=email]').type("admin@test.com")
-    cy.get('input[formControlName=password]').type("test!1234")
-    cy.get('button[type=submit]').click()
+    cy.contains('You are admin').should('be.visible');
+  });
 
-    cy.get('span[routerLink=me]').click()
+  it('should NOT display admin status for regular user', () => {
+    loginAndNavigateToAccount(regularUser, regularUserFull);
 
-    cy.url().should('include', '/me')
-    
-    cy.get('p').contains('Name: Admin ADMIN').should('be.visible')
-    cy.get('p').contains('Email: admin@test.com').should('be.visible')
-    cy.get('p').contains('You are admin').should('be.visible')
-    cy.get('button[color=warn]').should('not.exist')
-  })
+    cy.contains('You are admin').should('not.exist');
+  });
 
-  it('Delete user account', () => {
-    cy.visit('/login')
+  it('should show Delete my account button for regular user', () => {
+    loginAndNavigateToAccount(regularUser, regularUserFull);
 
-    cy.intercept('POST', '/api/auth/login', {
-      body: user
-    })
+    cy.contains('Delete my account').should('be.visible');
+    cy.get('button[color=warn]').should('be.visible');
+  });
 
-    cy.intercept('GET', '/api/session', []).as('sessions')
-    cy.intercept('GET', '/api/user/1', user).as('user')
-    cy.intercept('DELETE', '/api/user/1', {}).as('deleteUser')
+  it('should NOT show Delete my account button for admin user', () => {
+    loginAndNavigateToAccount(adminUser, adminUserFull);
 
-    cy.get('input[formControlName=email]').type("test@test.com")
-    cy.get('input[formControlName=password]').type("test!1234")
-    cy.get('button[type=submit]').click()
+    cy.contains('Delete my account').should('not.exist');
+    cy.get('button[color=warn]').should('not.exist');
+  });
 
-    cy.get('span[routerLink=me]').click()
-    
-    cy.get('button[color=warn]').click()
-    
-    cy.url().should('include', '/')
-  })
+  it('should delete account successfully', () => {
+    // Setup intercepts
+    cy.intercept('POST', '/api/auth/login', { body: regularUser }).as('login');
+    cy.intercept('GET', '/api/session', { body: [] }).as('sessions');
+    cy.intercept('GET', `/api/user/${regularUser.id}`, { body: regularUserFull }).as('userDetail');
+
+    // Login
+    cy.visit('/login');
+    cy.get('input[formControlName=email]').type(regularUser.username);
+    cy.get('input[formControlName=password]').type('test!1234');
+    cy.get('button[type=submit]').click();
+    cy.url().should('include', '/sessions');
+
+    // Navigate to account
+    cy.get('span[routerLink=me]').click();
+    cy.wait('@userDetail');
+
+    // Setup delete intercept
+    cy.intercept('DELETE', `/api/user/${regularUser.id}`, {
+      statusCode: 200,
+      body: {}
+    }).as('deleteUser');
+
+    // Delete account
+    cy.get('button[color=warn]').click();
+    cy.wait('@deleteUser');
+
+    cy.contains('Your account has been deleted !').should('be.visible');
+    cy.url().should('include', '/');
+  });
 });
