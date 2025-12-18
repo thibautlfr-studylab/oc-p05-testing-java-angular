@@ -1,6 +1,8 @@
 # Yoga App - Savasana
 > Application full-stack de réservation de sessions de yoga pour le studio Savasana.
 
+**Projet OpenClassrooms #5** - "Testez une application full-stack"
+
 <!-- TOC -->
 * [Yoga App - Savasana](#yoga-app---savasana)
   * [Description](#description)
@@ -26,6 +28,7 @@
   * [Technologies utilisées](#technologies-utilisées)
     * [Backend](#backend-1)
     * [Frontend](#frontend-1)
+    * [Outils de test](#outils-de-test)
     * [Outils de développement](#outils-de-développement)
   * [API Endpoints](#api-endpoints)
     * [Authentification](#authentification)
@@ -33,17 +36,20 @@
     * [Professeurs](#professeurs)
     * [Utilisateurs](#utilisateurs)
   * [Ressources](#ressources)
-  * [Tests](#tests)
+  * [Tests et Couverture de code](#tests-et-couverture-de-code)
     * [Tests Backend (JUnit + Mockito)](#tests-backend-junit--mockito)
     * [Tests Frontend Unitaires (Jest)](#tests-frontend-unitaires-jest)
     * [Tests E2E (Cypress)](#tests-e2e-cypress)
+  * [Rapports de couverture](#rapports-de-couverture)
+    * [Backend (JaCoCo)](#backend-jacoco)
+    * [Frontend - Tests unitaires (Jest)](#frontend---tests-unitaires-jest)
+    * [Frontend - Tests E2E (Cypress)](#frontend---tests-e2e-cypress)
     * [Visualiser les rapports de couverture](#visualiser-les-rapports-de-couverture)
   * [Problèmes courants](#problèmes-courants)
     * [Le backend ne démarre pas](#le-backend-ne-démarre-pas)
     * [Le frontend ne se connecte pas au backend](#le-frontend-ne-se-connecte-pas-au-backend)
     * [Problème d'encodage dans la base de données](#problème-dencodage-dans-la-base-de-données)
-  * [Auteurs](#auteurs)
-  * [Licence](#licence)
+  * [Auteur](#auteur)
 <!-- TOC -->
 
 ## Description
@@ -56,8 +62,9 @@ Application de gestion et de réservation de sessions de yoga avec :
 ## Prérequis
 
 Avant de commencer, assurez-vous d'avoir installé :
-- **Java JDK** : version 8 (1.8) minimum - le projet utilise Java 8 mais fonctionne avec Java 11+
+- **Java JDK** : version 8 (1.8) - le projet utilise Java 8
 - **Node.js** : version 16 ou supérieure
+- **Yarn** : gestionnaire de paquets (recommandé)
 - **MySQL** : version 8.0 ou Docker
 - **Maven** : version 3.6 ou supérieure
 - **Angular CLI** : version 14
@@ -66,7 +73,7 @@ Avant de commencer, assurez-vous d'avoir installé :
 # Vérifier les versions installées
 java -version
 node -v
-npm -v
+yarn -v
 mvn -v
 ng version
 ```
@@ -112,7 +119,7 @@ ng version
 │   └── postman/
 │       └── yoga.postman_collection.json
 │
-└── docker-compose.yml               # Configuration Docker MySQL
+└── docker compose.yml               # Configuration Docker MySQL
 ```
 
 ## Installation
@@ -123,13 +130,13 @@ ng version
 
 ```bash
 # Lancer MySQL avec Docker Compose
-docker-compose up -d
+docker compose up -d
 
 # Vérifier que le conteneur est démarré
 docker ps
 
 # Voir les logs
-docker-compose logs mysql
+docker compose logs mysql
 ```
 
 La base de données sera automatiquement initialisée avec le script `ressources/sql/script.sql`.
@@ -170,8 +177,8 @@ cd ..
 # Se placer dans le dossier front
 cd front
 
-# Installer les dépendances npm
-npm install
+# Installer les dépendances
+yarn install
 
 # Retourner à la racine
 cd ..
@@ -185,7 +192,7 @@ cd ..
 
 ```bash
 # Si vous utilisez Docker
-docker-compose up -d
+docker compose up -d
 ```
 
 ### 2. Démarrer le backend
@@ -202,7 +209,7 @@ Le serveur backend démarre sur **http://localhost:8080**
 ```bash
 # Dans un nouveau terminal
 cd front
-npm run start
+yarn start
 ```
 
 L'application frontend est accessible sur **http://localhost:4200**
@@ -251,29 +258,35 @@ mvn clean install
 cd front
 
 # Démarrer le serveur de développement
-npm run start
+yarn start
 
 # Builder le projet pour la production
-ng build
+yarn build
 
 # Linter le code
-npm run lint
+yarn lint
+
+# Lancer les tests unitaires
+yarn test
+
+# Lancer les tests E2E
+yarn e2e
 ```
 
 ### Base de données
 
 ```bash
 # Démarrer MySQL
-docker-compose up -d
+docker compose up -d
 
 # Arrêter MySQL
-docker-compose down
+docker compose down
 
 # Arrêter et supprimer les données
-docker-compose down -v
+docker compose down -v
 
 # Voir les logs MySQL
-docker-compose logs -f mysql
+docker compose logs -f mysql
 
 # Se connecter à MySQL
 docker exec -it yoga-app-mysql mysql -u user -p
@@ -295,6 +308,13 @@ docker exec -it yoga-app-mysql mysql -u user -p
 - **Angular Material** (composants UI)
 - **RxJS** (programmation réactive)
 - **TypeScript**
+
+### Outils de test
+- **JUnit 5** + **Mockito** (tests backend)
+- **JaCoCo** (couverture backend)
+- **Jest** (tests unitaires frontend)
+- **Cypress** (tests E2E)
+- **@cypress/code-coverage** (couverture E2E)
 
 ### Outils de développement
 - **Postman** (collection disponible dans `ressources/postman/`)
@@ -332,12 +352,14 @@ Le backend expose une API REST sur `http://localhost:8080/api` :
 
 Pour importer la collection Postman, suivez la [documentation officielle](https://learning.postman.com/docs/getting-started/importing-and-exporting-data/#importing-data-into-postman).
 
-## Tests
+## Tests et Couverture de code
 
 L'application dispose de tests automatisés pour garantir la qualité du code :
 - **Tests unitaires** : pour tester les composants individuels
 - **Tests d'intégration** : pour tester l'interaction entre les composants
 - **Tests end-to-end (E2E)** : pour tester l'application complète du point de vue utilisateur
+
+**Objectif de couverture** : minimum **80%** sur toutes les métriques (instructions, branches, lignes, fonctions)
 
 ### Tests Backend (JUnit + Mockito)
 
@@ -345,18 +367,11 @@ L'application dispose de tests automatisés pour garantir la qualité du code :
 # Se placer dans le dossier back
 cd back
 
-# Lancer tous les tests
+# Lancer tous les tests et générer le rapport de couverture
 mvn clean test
-
-# Générer le rapport de couverture JaCoCo
-mvn clean test jacoco:report
 ```
 
-**Rapport de couverture** : après exécution, le rapport JaCoCo est généré dans `back/target/site/jacoco/index.html`
-
-Ouvrez ce fichier dans un navigateur pour visualiser la couverture de code détaillée par package et classe.
-
-**Objectif de couverture** : minimum 80% sur toutes les métriques (instructions, branches, lignes, fonctions)
+Le rapport de couverture JaCoCo est automatiquement généré dans `back/target/site/jacoco/index.html`
 
 ### Tests Frontend Unitaires (Jest)
 
@@ -364,27 +379,22 @@ Ouvrez ce fichier dans un navigateur pour visualiser la couverture de code déta
 # Se placer dans le dossier front
 cd front
 
-# Lancer tous les tests unitaires
-npm run test
+# Lancer tous les tests unitaires avec couverture
+yarn test
 
-# Lancer les tests en mode watch (relance automatique)
-npm run test:watch
-
-# Générer le rapport de couverture
-npm run test -- --coverage
+# Lancer les tests en mode watch (développement)
+yarn test:watch
 ```
 
-**Rapport de couverture** : les résultats s'affichent dans le terminal et un rapport HTML est généré dans `front/coverage/jest/lcov-report/index.html`
-
-**Objectif de couverture** : minimum 80% sur toutes les métriques
+Le rapport de couverture est généré dans `front/coverage/jest/lcov-report/index.html`
 
 ### Tests E2E (Cypress)
 
-**IMPORTANT** : Le backend et le frontend doivent être lancés avant d'exécuter les tests E2E.
+**Prérequis** : Le backend et le frontend doivent être lancés avant d'exécuter les tests E2E.
 
 ```bash
 # Terminal 1 : Démarrer la base de données
-docker-compose up -d
+docker compose up -d
 
 # Terminal 2 : Démarrer le backend
 cd back
@@ -392,22 +402,70 @@ mvn spring-boot:run
 
 # Terminal 3 : Démarrer le frontend
 cd front
-npm run start
+yarn start
 
-# Terminal 4 : Lancer les tests E2E
+# Terminal 4 : Lancer les tests E2E (depuis le dossier front)
 cd front
-
-# Option 1 : Interface graphique Cypress (recommandé pour le développement)
-npm run e2e
-
-# Option 2 : Mode headless (pour CI/CD)
-npm run e2e:ci
-
-# Générer le rapport de couverture E2E
-npm run e2e:coverage
+yarn e2e
 ```
 
-**Rapport de couverture E2E** : après exécution, le rapport est disponible dans `front/coverage/lcov-report/index.html`
+Le rapport de couverture E2E est généré dans `front/coverage/lcov-report/index.html`
+
+---
+
+## Rapports de couverture
+
+### Backend (JaCoCo)
+
+**Commande pour générer le rapport** :
+```bash
+cd back
+mvn clean test
+```
+
+**Emplacement du rapport** : `back/target/site/jacoco/index.html`
+
+**Capture d'écran du rapport de couverture backend** :
+
+<!-- TODO: Ajouter la capture d'écran du rapport JaCoCo -->
+![Rapport de couverture Backend](docs/screenshots/coverage-backend.png)
+
+---
+
+### Frontend - Tests unitaires (Jest)
+
+**Commande pour générer le rapport** :
+```bash
+cd front
+yarn test
+```
+
+**Emplacement du rapport** : `front/coverage/jest/lcov-report/index.html`
+
+**Capture d'écran du rapport de couverture frontend (Jest)** :
+
+<!-- TODO: Ajouter la capture d'écran du rapport Jest -->
+![Rapport de couverture Frontend Jest](docs/screenshots/coverage-frontend-jest.png)
+
+---
+
+### Frontend - Tests E2E (Cypress)
+
+**Commande pour générer le rapport** :
+```bash
+cd front
+# Prérequis : backend et frontend doivent être lancés
+yarn e2e
+```
+
+**Emplacement du rapport** : `front/coverage/lcov-report/index.html`
+
+**Capture d'écran du rapport de couverture E2E** :
+
+<!-- TODO: Ajouter la capture d'écran du rapport Cypress -->
+![Rapport de couverture E2E Cypress](docs/screenshots/coverage-e2e.png)
+
+---
 
 ### Visualiser les rapports de couverture
 
@@ -422,7 +480,7 @@ open coverage/jest/lcov-report/index.html
 open coverage/lcov-report/index.html
 ```
 
-Sur Linux, remplacez `open` par `xdg-open`. Sur Windows, utilisez `start`.
+> **Note** : Sur Linux, remplacez `open` par `xdg-open`. Sur Windows, utilisez `start`.
 
 ## Problèmes courants
 
@@ -435,13 +493,9 @@ Sur Linux, remplacez `open` par `xdg-open`. Sur Windows, utilisez `start`.
 - Vérifiez que le frontend pointe vers `http://localhost:8080` dans les services
 
 ### Problème d'encodage dans la base de données
-- Le docker-compose est configuré pour UTF-8 (`utf8mb4`)
+- Le docker compose est configuré pour UTF-8 (`utf8mb4`)
 - Si vous utilisez MySQL manuellement, assurez-vous d'utiliser le charset `utf8mb4`
 
-## Auteurs
+## Auteur
 
-Projet réalisé dans le cadre du parcours OpenClassrooms - Développeur Full-Stack Java et Angular.
-
-## Licence
-
-Ce projet est un projet éducatif.
+Projet réalisé dans le cadre du parcours **OpenClassrooms - Développeur Full-Stack Java et Angular**.
