@@ -43,13 +43,13 @@
   * [Rapports de couverture](#rapports-de-couverture)
     * [Backend (JaCoCo)](#backend-jacoco)
     * [Frontend - Tests unitaires (Jest)](#frontend---tests-unitaires-jest)
+    * [Frontend - Tests integrations (Jest)](#frontend---tests-integrations-jest)
     * [Frontend - Tests E2E (Cypress)](#frontend---tests-e2e-cypress)
     * [Visualiser les rapports de couverture](#visualiser-les-rapports-de-couverture)
   * [Problèmes courants](#problèmes-courants)
     * [Le backend ne démarre pas](#le-backend-ne-démarre-pas)
     * [Le frontend ne se connecte pas au backend](#le-frontend-ne-se-connecte-pas-au-backend)
     * [Problème d'encodage dans la base de données](#problème-dencodage-dans-la-base-de-données)
-  * [Auteur](#auteur)
 <!-- TOC -->
 
 ## Description
@@ -380,7 +380,8 @@ Le rapport de couverture JaCoCo est automatiquement généré dans `back/target/
 cd front
 
 # Lancer tous les tests unitaires avec couverture
-yarn test
+yarn test:unit
+yarn test:integration
 
 # Lancer les tests en mode watch (développement)
 yarn test:watch
@@ -406,7 +407,7 @@ yarn start
 
 # Terminal 4 : Lancer les tests E2E (depuis le dossier front)
 cd front
-yarn e2e
+yarn e2e # ou yarn e2e:ci si vous voulez tout exécuter d'un coup. Pratique pour la génération du coverage
 ```
 
 Le rapport de couverture E2E est généré dans `front/coverage/lcov-report/index.html`
@@ -427,7 +428,6 @@ mvn clean test
 
 **Capture d'écran du rapport de couverture backend** :
 
-<!-- TODO: Ajouter la capture d'écran du rapport JaCoCo -->
 ![Rapport de couverture Backend](docs/screenshots/coverage-backend.png)
 
 ---
@@ -437,15 +437,30 @@ mvn clean test
 **Commande pour générer le rapport** :
 ```bash
 cd front
-yarn test
+yarn test:coverage:unit
 ```
 
-**Emplacement du rapport** : `front/coverage/jest/lcov-report/index.html`
+**Emplacement du rapport** : `front/coverage/unit/lcov-report/index.html`
 
 **Capture d'écran du rapport de couverture frontend (Jest)** :
 
-<!-- TODO: Ajouter la capture d'écran du rapport Jest -->
-![Rapport de couverture Frontend Jest](docs/screenshots/coverage-frontend-jest.png)
+![Rapport de couverture Frontend Jest](docs/screenshots/coverage-front-unit.png)
+
+---
+
+### Frontend - Tests integrations (Jest)
+
+**Commande pour générer le rapport** :
+```bash
+cd front
+yarn test:coverage:integration
+```
+
+**Emplacement du rapport** : `front/coverage/integration/lcov-report/index.html`
+
+**Capture d'écran du rapport de couverture frontend (Jest)** :
+
+![Rapport de couverture Frontend Jest](docs/screenshots/coverage-front-integration.png)
 
 ---
 
@@ -462,8 +477,7 @@ yarn e2e
 
 **Capture d'écran du rapport de couverture E2E** :
 
-<!-- TODO: Ajouter la capture d'écran du rapport Cypress -->
-![Rapport de couverture E2E Cypress](docs/screenshots/coverage-e2e.png)
+![Rapport de couverture E2E Cypress](docs/screenshots/coverage-front-e2e.png)
 
 ---
 
@@ -474,7 +488,10 @@ yarn e2e
 open target/site/jacoco/index.html
 
 # Frontend - Tests unitaires (depuis le dossier front)
-open coverage/jest/lcov-report/index.html
+open coverage/unit/lcov-report/index.html
+
+# Frontend - Tests intégrations (depuis le dossier front)
+open coverage/integration/lcov-report/index.html
 
 # Frontend - Tests E2E (depuis le dossier front)
 open coverage/lcov-report/index.html
@@ -495,7 +512,3 @@ open coverage/lcov-report/index.html
 ### Problème d'encodage dans la base de données
 - Le docker compose est configuré pour UTF-8 (`utf8mb4`)
 - Si vous utilisez MySQL manuellement, assurez-vous d'utiliser le charset `utf8mb4`
-
-## Auteur
-
-Projet réalisé dans le cadre du parcours **OpenClassrooms - Développeur Full-Stack Java et Angular**.

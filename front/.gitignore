@@ -29,13 +29,21 @@ yarn-error.log
 .history/*
 
 # Miscellaneous
-/.angular/cache
+/.angular
 .sass-cache/
 /connect.lock
-/coverage
 /libpeerconnection.log
 testem.log
 /typings
+
+# Test coverage
+/coverage
+/.nyc_output
+
+# Cypress
+/cypress/screenshots
+/cypress/videos
+/cypress/downloads
 
 # System files
 .DS_Store
