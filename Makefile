@@ -71,9 +71,17 @@ test-front: ## Lance les tests frontend (Jest)
 	@echo "$(GREEN)Lancement des tests frontend...$(RESET)"
 	cd front && yarn test
 
-test-back: ## Lance les tests backend
-	@echo "$(GREEN)Lancement des tests backend...$(RESET)"
+test-back: ## Lance tous les tests backend (unitaires + intégration)
+	@echo "$(GREEN)Lancement de tous les tests backend...$(RESET)"
 	cd back && mvn verify
+
+test-back-unit: ## Lance uniquement les tests unitaires backend
+	@echo "$(GREEN)Lancement des tests unitaires backend...$(RESET)"
+	cd back && mvn test
+
+test-back-integration: ## Lance uniquement les tests d'intégration backend
+	@echo "$(GREEN)Lancement des tests d'intégration backend...$(RESET)"
+	cd back && mvn failsafe:integration-test failsafe:verify
 
 test-e2e: ## Lance les tests E2E avec Cypress
 	@echo "$(GREEN)Lancement des tests E2E...$(RESET)"
@@ -109,10 +117,27 @@ coverage-front-all: ## Génère les deux rapports de coverage frontend séparés
 	@echo "$(GREEN)Génération de tous les rapports frontend...$(RESET)"
 	cd front && yarn test:coverage:all
 
-coverage-back: ## Génère le coverage backend (JaCoCo)
-	@echo "$(GREEN)Génération du coverage backend...$(RESET)"
+coverage-back: ## Génère le coverage backend global (JaCoCo)
+	@echo "$(GREEN)Génération du coverage backend (tous les tests)...$(RESET)"
 	cd back && mvn clean verify
-	@echo "$(BLUE)Rapport: back/target/site/jacoco/index.html$(RESET)"
+	@echo "$(BLUE)Rapport global: back/target/site/jacoco/index.html$(RESET)"
+	@echo "$(BLUE)Rapport unitaire: back/target/site/jacoco-unit/index.html$(RESET)"
+	@echo "$(BLUE)Rapport intégration: back/target/site/jacoco-integration/index.html$(RESET)"
+
+coverage-back-unit: ## Génère le coverage backend (tests unitaires uniquement)
+	@echo "$(GREEN)Génération du coverage backend unitaire...$(RESET)"
+	cd back && mvn clean test
+	@echo "$(BLUE)Rapport: back/target/site/jacoco-unit/index.html$(RESET)"
+
+coverage-back-integration: ## Génère le coverage backend (tests d'intégration uniquement)
+	@echo "$(GREEN)Génération du coverage backend intégration...$(RESET)"
+	cd back && mvn clean test failsafe:integration-test jacoco:report@report-integration
+	@echo "$(BLUE)Rapport: back/target/site/jacoco-integration/index.html$(RESET)"
+
+coverage-back-all: ## Génère les deux rapports de coverage backend séparés
+	@echo "$(GREEN)Génération de tous les rapports backend...$(RESET)"
+	cd back && mvn clean verify
+	@echo "$(BLUE)Rapports générés dans back/target/site/$(RESET)"
 
 coverage-e2e: ## Génère le coverage E2E
 	@echo "$(GREEN)Génération du coverage E2E...$(RESET)"
@@ -133,6 +158,8 @@ coverage-summary: ## Affiche un résumé des rapports de coverage
 	@echo ""
 	@echo "$(YELLOW)Backend (JaCoCo):$(RESET)"
 	@echo "  • Global:        back/target/site/jacoco/index.html"
+	@echo "  • Unitaire:      back/target/site/jacoco-unit/index.html"
+	@echo "  • Intégration:   back/target/site/jacoco-integration/index.html"
 	@echo ""
 	@echo "$(YELLOW)E2E (Cypress):$(RESET)"
 	@echo "  • Global:        front/coverage/lcov-report/index.html"
