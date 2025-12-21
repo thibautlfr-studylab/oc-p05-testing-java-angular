@@ -37,13 +37,17 @@
     * [Utilisateurs](#utilisateurs)
   * [Ressources](#ressources)
   * [Tests et Couverture de code](#tests-et-couverture-de-code)
+    * [Commandes Make (recommandé)](#commandes-make-recommandé)
     * [Tests Backend (JUnit + Mockito)](#tests-backend-junit--mockito)
-    * [Tests Frontend Unitaires (Jest)](#tests-frontend-unitaires-jest)
+    * [Tests Frontend (Jest)](#tests-frontend-jest)
     * [Tests E2E (Cypress)](#tests-e2e-cypress)
   * [Rapports de couverture](#rapports-de-couverture)
-    * [Backend (JaCoCo)](#backend-jacoco)
+    * [Backend - Couverture globale (JaCoCo)](#backend---couverture-globale-jacoco)
+    * [Backend - Tests unitaires (JaCoCo)](#backend---tests-unitaires-jacoco)
+    * [Backend - Tests d'intégration (JaCoCo)](#backend---tests-dintégration-jacoco)
+    * [Frontend - Vue d'ensemble (Jest)](#frontend---vue-densemble-jest)
     * [Frontend - Tests unitaires (Jest)](#frontend---tests-unitaires-jest)
-    * [Frontend - Tests integrations (Jest)](#frontend---tests-integrations-jest)
+    * [Frontend - Tests d'intégration (Jest)](#frontend---tests-dintégration-jest)
     * [Frontend - Tests E2E (Cypress)](#frontend---tests-e2e-cypress)
     * [Visualiser les rapports de couverture](#visualiser-les-rapports-de-couverture)
   * [Problèmes courants](#problèmes-courants)
@@ -361,53 +365,94 @@ L'application dispose de tests automatisés pour garantir la qualité du code :
 
 **Objectif de couverture** : minimum **80%** sur toutes les métriques (instructions, branches, lignes, fonctions)
 
+---
+
+### Commandes Make (recommandé)
+
+Le projet inclut un `Makefile` qui simplifie l'exécution des tests et la génération des rapports de couverture.
+
+```bash
+# Afficher toutes les commandes disponibles
+make help
+
+# Afficher les statistiques des tests (ratio unitaires/intégration)
+make stats
+
+# Lancer les tests backend avec rapports de couverture
+make test:back
+
+# Lancer les tests frontend (unitaires + intégration) avec rapports de couverture
+make test:front
+
+# Lancer les tests E2E Cypress (nécessite backend démarré)
+make test:e2e
+```
+
+**Avantages des commandes Make :**
+- Génération automatique des rapports de couverture
+- Affichage des statistiques directement dans le terminal
+- Messages colorés pour une meilleure lisibilité
+- Chemins vers les rapports HTML affichés à la fin
+
+---
+
 ### Tests Backend (JUnit + Mockito)
 
 ```bash
-# Se placer dans le dossier back
-cd back
+# Avec Make (recommandé)
+make test:back
+make test:back:unit
+make test:back:integration
 
-# Lancer tous les tests et générer le rapport de couverture
-mvn clean test
+# Ou manuellement
+cd back
+mvn clean verify                        # Tous les tests avec couverture
+mvn clean test                          # Tests unitaires uniquement
+mvn clean verify -Dskip.unit.tests=true # Tests d'intégration uniquement (possible d'avoir un failed comme il manquera la couverture unitaires)
 ```
 
-Le rapport de couverture JaCoCo est automatiquement généré dans `back/target/site/jacoco/index.html`
+> Note : Il est possible d'avoir un failed au lancement des tests unitaires sans les tests d'intégrations et réciproquement car la règle des 80% s'applique sur le code en général alors que les tests indépendants ne couvrent que leur partie concernée
 
-### Tests Frontend Unitaires (Jest)
+Les rapports de couverture JaCoCo sont générés dans :
+- **Global** : `back/target/site/jacoco/index.html`
+- **Unitaires** : `back/target/site/jacoco-unit/index.html`
+- **Intégration** : `back/target/site/jacoco-integration/index.html`
+
+---
+
+### Tests Frontend (Jest)
 
 ```bash
-# Se placer dans le dossier front
+# Avec Make (recommandé)
+make test:front
+make test:front:unit
+make test:front:integration
+
+# Ou manuellement
 cd front
-
-# Lancer tous les tests unitaires avec couverture
-yarn test:unit
-yarn test:integration
-
-# Lancer les tests en mode watch (développement)
-yarn test:watch
+yarn test:coverage:unit          # Tests unitaires avec couverture
+yarn test:coverage:integration   # Tests d'intégration avec couverture
+yarn test:watch                  # Mode watch (développement)
 ```
 
-Le rapport de couverture est généré dans `front/coverage/jest/lcov-report/index.html`
+Les rapports de couverture sont générés dans :
+- **Unitaires** : `front/coverage/unit/lcov-report/index.html`
+- **Intégration** : `front/coverage/integration/lcov-report/index.html`
+
+---
 
 ### Tests E2E (Cypress)
 
-**Prérequis** : Le backend et le frontend doivent être lancés avant d'exécuter les tests E2E.
+> Note : Ni le backend ni le frontend nécessite d'être lancé étant donné que dans ces tests e2e, nous interceptons tous les appels API avec des mocks.
 
 ```bash
-# Terminal 1 : Démarrer la base de données
-docker compose up -d
+# Avec Make (recommandé)
+make test:e2e
 
-# Terminal 2 : Démarrer le backend
-cd back
-mvn spring-boot:run
-
-# Terminal 3 : Démarrer le frontend
+# Ou manuellement
 cd front
-yarn start
-
-# Terminal 4 : Lancer les tests E2E (depuis le dossier front)
-cd front
-yarn e2e # ou yarn e2e:ci si vous voulez tout exécuter d'un coup. Pratique pour la génération du coverage
+yarn e2e      # Mode interactif
+yarn e2e:ci   # Mode CI (headless)
 ```
 
 Le rapport de couverture E2E est généré dans `front/coverage/lcov-report/index.html`
@@ -416,66 +461,55 @@ Le rapport de couverture E2E est généré dans `front/coverage/lcov-report/inde
 
 ## Rapports de couverture
 
-### Backend (JaCoCo)
+### Backend - Couverture globale (JaCoCo)
 
-**Commande pour générer le rapport** :
-```bash
-cd back
-mvn clean test
-```
+**Emplacement** : `back/target/site/jacoco/index.html`
 
-**Emplacement du rapport** : `back/target/site/jacoco/index.html`
+![Rapport de couverture Backend - Global](docs/screenshots/coverage-backend.png)
 
-**Capture d'écran du rapport de couverture backend** :
+---
 
-![Rapport de couverture Backend](docs/screenshots/coverage-backend.png)
+### Backend - Tests unitaires (JaCoCo)
+
+**Emplacement** : `back/target/site/jacoco-unit/index.html`
+
+![Rapport de couverture Backend - Unitaires](docs/screenshots/coverage-backend-unit.png)
+
+---
+
+### Backend - Tests d'intégration (JaCoCo)
+
+**Emplacement** : `back/target/site/jacoco-integration/index.html`
+
+![Rapport de couverture Backend - Intégration](docs/screenshots/coverage-backend-integration.png)
+
+---
+
+### Frontend - Vue d'ensemble (Jest)
+
+![Rapport de couverture Frontend - Vue d'ensemble](docs/screenshots/coverage-front.png)
 
 ---
 
 ### Frontend - Tests unitaires (Jest)
 
-**Commande pour générer le rapport** :
-```bash
-cd front
-yarn test:coverage:unit
-```
+**Emplacement** : `front/coverage/unit/lcov-report/index.html`
 
-**Emplacement du rapport** : `front/coverage/unit/lcov-report/index.html`
-
-**Capture d'écran du rapport de couverture frontend (Jest)** :
-
-![Rapport de couverture Frontend Jest](docs/screenshots/coverage-front-unit.png)
+![Rapport de couverture Frontend - Unitaires](docs/screenshots/coverage-front-unit.png)
 
 ---
 
-### Frontend - Tests integrations (Jest)
+### Frontend - Tests d'intégration (Jest)
 
-**Commande pour générer le rapport** :
-```bash
-cd front
-yarn test:coverage:integration
-```
+**Emplacement** : `front/coverage/integration/lcov-report/index.html`
 
-**Emplacement du rapport** : `front/coverage/integration/lcov-report/index.html`
-
-**Capture d'écran du rapport de couverture frontend (Jest)** :
-
-![Rapport de couverture Frontend Jest](docs/screenshots/coverage-front-integration.png)
+![Rapport de couverture Frontend - Intégration](docs/screenshots/coverage-front-integration.png)
 
 ---
 
 ### Frontend - Tests E2E (Cypress)
 
-**Commande pour générer le rapport** :
-```bash
-cd front
-# Prérequis : backend et frontend doivent être lancés
-yarn e2e
-```
-
-**Emplacement du rapport** : `front/coverage/lcov-report/index.html`
-
-**Capture d'écran du rapport de couverture E2E** :
+**Emplacement** : `front/coverage/lcov-report/index.html`
 
 ![Rapport de couverture E2E Cypress](docs/screenshots/coverage-front-e2e.png)
 
@@ -484,17 +518,26 @@ yarn e2e
 ### Visualiser les rapports de couverture
 
 ```bash
-# Backend (depuis le dossier back)
-open target/site/jacoco/index.html
+# Backend - Global
+open back/target/site/jacoco/index.html
 
-# Frontend - Tests unitaires (depuis le dossier front)
-open coverage/unit/lcov-report/index.html
+# Backend - Tests unitaires
+open back/target/site/jacoco-unit/index.html
 
-# Frontend - Tests intégrations (depuis le dossier front)
-open coverage/integration/lcov-report/index.html
+# Backend - Tests d'intégration
+open back/target/site/jacoco-integration/index.html
 
-# Frontend - Tests E2E (depuis le dossier front)
-open coverage/lcov-report/index.html
+# Frontend - Vue d'ensemble
+open front/coverage/jest/lcov-report/index.html
+
+# Frontend - Tests unitaires
+open front/coverage/unit/lcov-report/index.html
+
+# Frontend - Tests d'intégration
+open front/coverage/integration/lcov-report/index.html
+
+# Frontend - Tests E2E
+open front/coverage/lcov-report/index.html
 ```
 
 > **Note** : Sur Linux, remplacez `open` par `xdg-open`. Sur Windows, utilisez `start`.
