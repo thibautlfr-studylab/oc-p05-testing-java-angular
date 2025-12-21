@@ -4,7 +4,12 @@
   "scripts": {
     "start": "ng serve",
     "test": "jest",
+    "test:unit": "jest --config jest.unit.config.js",
+    "test:integration": "jest --config jest.integration.config.js",
     "test:watch": "jest --watch",
+    "test:coverage": "yarn test:coverage:unit && yarn test:coverage:integration",
+    "test:coverage:unit": "jest --config jest.unit.config.js --coverage",
+    "test:coverage:integration": "jest --config jest.integration.config.js --coverage",
     "lint": "ng lint",
     "e2e": "ng e2e",
     "e2e:ci": "ng run yoga:e2e-ci",

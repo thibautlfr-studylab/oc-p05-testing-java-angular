@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { expect } from '@jest/globals';
+import { By } from '@angular/platform-browser';
 
 import { NotFoundComponent } from './not-found.component';
 
@@ -20,5 +21,10 @@ describe('NotFoundComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should display "Page not found !"', () => {
+    const h1 = fixture.debugElement.query(By.css('h1')).nativeElement;
+    expect(h1.textContent).toBe('Page not found !');
   });
 });

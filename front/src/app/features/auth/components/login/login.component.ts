@@ -27,7 +27,9 @@ export class LoginComponent {
       '',
       [
         Validators.required,
-        Validators.min(3)
+        // Utilise `Validators.minLength` car le mot de passe est une chaîne (vérifie le nombre de caractères).
+        // `Validators.min()` (précédemment utilisé) s'applique aux valeurs numériques.
+        Validators.minLength(3)
       ]
     ]
   });

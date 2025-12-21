@@ -1,0 +1,557 @@
+# Yoga App - Savasana
+> Application full-stack de réservation de sessions de yoga pour le studio Savasana.
+
+**Projet OpenClassrooms #5** - "Testez une application full-stack"
+
+<!-- TOC -->
+* [Yoga App - Savasana](#yoga-app---savasana)
+  * [Description](#description)
+  * [Prérequis](#prérequis)
+  * [Structure du projet](#structure-du-projet)
+  * [Installation](#installation)
+    * [1. Installation de la base de données](#1-installation-de-la-base-de-données)
+      * [Option A : Avec Docker (recommandé)](#option-a--avec-docker-recommandé)
+      * [Option B : Installation manuelle de MySQL](#option-b--installation-manuelle-de-mysql)
+    * [2. Installation du Backend](#2-installation-du-backend)
+    * [3. Installation du Frontend](#3-installation-du-frontend)
+  * [Lancement de l'application](#lancement-de-lapplication)
+    * [1. Démarrer la base de données](#1-démarrer-la-base-de-données)
+    * [2. Démarrer le backend](#2-démarrer-le-backend)
+    * [3. Démarrer le frontend](#3-démarrer-le-frontend)
+  * [Comptes de test](#comptes-de-test)
+    * [Compte Administrateur](#compte-administrateur)
+    * [Compte Utilisateur](#compte-utilisateur)
+  * [Commandes utiles](#commandes-utiles)
+    * [Backend](#backend)
+    * [Frontend](#frontend)
+    * [Base de données](#base-de-données)
+  * [Technologies utilisées](#technologies-utilisées)
+    * [Backend](#backend-1)
+    * [Frontend](#frontend-1)
+    * [Outils de test](#outils-de-test)
+    * [Outils de développement](#outils-de-développement)
+  * [API Endpoints](#api-endpoints)
+    * [Authentification](#authentification)
+    * [Sessions](#sessions)
+    * [Professeurs](#professeurs)
+    * [Utilisateurs](#utilisateurs)
+  * [Ressources](#ressources)
+  * [Tests et Couverture de code](#tests-et-couverture-de-code)
+    * [Commandes Make (recommandé)](#commandes-make-recommandé)
+    * [Tests Backend (JUnit + Mockito)](#tests-backend-junit--mockito)
+    * [Tests Frontend (Jest)](#tests-frontend-jest)
+    * [Tests E2E (Cypress)](#tests-e2e-cypress)
+  * [Rapports de couverture](#rapports-de-couverture)
+    * [Backend - Couverture globale (JaCoCo)](#backend---couverture-globale-jacoco)
+    * [Backend - Tests unitaires (JaCoCo)](#backend---tests-unitaires-jacoco)
+    * [Backend - Tests d'intégration (JaCoCo)](#backend---tests-dintégration-jacoco)
+    * [Frontend - Vue d'ensemble (Jest)](#frontend---vue-densemble-jest)
+    * [Frontend - Tests unitaires (Jest)](#frontend---tests-unitaires-jest)
+    * [Frontend - Tests d'intégration (Jest)](#frontend---tests-dintégration-jest)
+    * [Frontend - Tests E2E (Cypress)](#frontend---tests-e2e-cypress)
+    * [Visualiser les rapports de couverture](#visualiser-les-rapports-de-couverture)
+  * [Problèmes courants](#problèmes-courants)
+    * [Le backend ne démarre pas](#le-backend-ne-démarre-pas)
+    * [Le frontend ne se connecte pas au backend](#le-frontend-ne-se-connecte-pas-au-backend)
+    * [Problème d'encodage dans la base de données](#problème-dencodage-dans-la-base-de-données)
+<!-- TOC -->
+
+## Description
+
+Application de gestion et de réservation de sessions de yoga avec :
+- **Backend** : API REST Spring Boot avec authentification JWT
+- **Frontend** : Application web Angular avec Material Design
+- **Base de données** : MySQL
+
+## Prérequis
+
+Avant de commencer, assurez-vous d'avoir installé :
+- **Java JDK** : version 8 (1.8) - le projet utilise Java 8
+- **Node.js** : version 16 ou supérieure
+- **Yarn** : gestionnaire de paquets (recommandé)
+- **MySQL** : version 8.0 ou Docker
+- **Maven** : version 3.6 ou supérieure
+- **Angular CLI** : version 14
+
+```bash
+# Vérifier les versions installées
+java -version
+node -v
+yarn -v
+mvn -v
+ng version
+```
+
+## Structure du projet
+
+```
+.
+├── back/                    # Backend Spring Boot
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── java/com/openclassrooms/starterjwt/
+│   │   │   │   ├── controllers/      # Contrôleurs REST
+│   │   │   │   ├── dto/              # Data Transfer Objects
+│   │   │   │   ├── models/           # Entités JPA
+│   │   │   │   ├── repository/       # Repositories Spring Data
+│   │   │   │   ├── security/         # Configuration JWT et sécurité
+│   │   │   │   ├── services/         # Logique métier
+│   │   │   │   └── mapper/           # Mappers MapStruct
+│   │   │   └── resources/
+│   │   │       └── application.properties
+│   │   └── test/                     # Tests unitaires et d'intégration
+│   └── pom.xml
+│
+├── front/                   # Frontend Angular
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── components/          # Composants partagés
+│   │   │   ├── features/            # Modules fonctionnels
+│   │   │   │   ├── auth/            # Authentification
+│   │   │   │   └── sessions/        # Gestion des sessions
+│   │   │   ├── guards/              # Guards de routing
+│   │   │   ├── interceptors/        # Intercepteurs HTTP
+│   │   │   ├── interfaces/          # Interfaces TypeScript
+│   │   │   └── services/            # Services API
+│   │   └── assets/
+│   ├── cypress/                     # Tests E2E
+│   └── package.json
+│
+├── ressources/
+│   ├── sql/
+│   │   └── script.sql               # Script d'initialisation DB
+│   └── postman/
+│       └── yoga.postman_collection.json
+│
+└── docker compose.yml               # Configuration Docker MySQL
+```
+
+## Installation
+
+### 1. Installation de la base de données
+
+#### Option A : Avec Docker (recommandé)
+
+```bash
+# Lancer MySQL avec Docker Compose
+docker compose up -d
+
+# Vérifier que le conteneur est démarré
+docker ps
+
+# Voir les logs
+docker compose logs mysql
+```
+
+La base de données sera automatiquement initialisée avec le script `ressources/sql/script.sql`.
+
+**Informations de connexion :**
+- Host : `localhost`
+- Port : `3306`
+- Database : `test`
+- User : `user`
+- Password : `123456`
+
+#### Option B : Installation manuelle de MySQL
+
+1. Installer MySQL 8.0
+2. Créer une base de données nommée `test`
+3. Exécuter le script SQL :
+   ```bash
+   mysql -u user -p test < ressources/sql/script.sql
+   ```
+4. Configurer les identifiants dans `back/src/main/resources/application.properties` si nécessaire
+
+### 2. Installation du Backend
+
+```bash
+# Se placer dans le dossier back
+cd back
+
+# Installer les dépendances Maven
+mvn clean install
+
+# Retourner à la racine
+cd ..
+```
+
+### 3. Installation du Frontend
+
+```bash
+# Se placer dans le dossier front
+cd front
+
+# Installer les dépendances
+yarn install
+
+# Retourner à la racine
+cd ..
+```
+
+## Lancement de l'application
+
+**IMPORTANT** : Les composants doivent être lancés dans cet ordre :
+
+### 1. Démarrer la base de données
+
+```bash
+# Si vous utilisez Docker
+docker compose up -d
+```
+
+### 2. Démarrer le backend
+
+```bash
+cd back
+mvn spring-boot:run
+```
+
+Le serveur backend démarre sur **http://localhost:8080**
+
+### 3. Démarrer le frontend
+
+```bash
+# Dans un nouveau terminal
+cd front
+yarn start
+```
+
+L'application frontend est accessible sur **http://localhost:4200**
+
+## Comptes de test
+
+### Compte Administrateur
+- **Email** : `yoga@studio.com`
+- **Mot de passe** : `test!1234`
+
+**Fonctionnalités admin :**
+- Créer des sessions de yoga
+- Modifier des sessions
+- Supprimer des sessions
+- Voir la liste des participants
+
+### Compte Utilisateur
+Vous pouvez créer un compte utilisateur via la page d'inscription.
+
+**Fonctionnalités utilisateur :**
+- Consulter les sessions disponibles
+- S'inscrire à une session
+- Se désinscrire d'une session
+- Consulter son profil
+
+## Commandes utiles
+
+### Backend
+
+```bash
+cd back
+
+# Lancer l'application
+mvn spring-boot:run
+
+# Compiler le projet
+mvn clean compile
+
+# Nettoyer et reconstruire
+mvn clean install
+```
+
+### Frontend
+
+```bash
+cd front
+
+# Démarrer le serveur de développement
+yarn start
+
+# Builder le projet pour la production
+yarn build
+
+# Linter le code
+yarn lint
+
+# Lancer les tests unitaires
+yarn test
+
+# Lancer les tests E2E
+yarn e2e
+```
+
+### Base de données
+
+```bash
+# Démarrer MySQL
+docker compose up -d
+
+# Arrêter MySQL
+docker compose down
+
+# Arrêter et supprimer les données
+docker compose down -v
+
+# Voir les logs MySQL
+docker compose logs -f mysql
+
+# Se connecter à MySQL
+docker exec -it yoga-app-mysql mysql -u user -p
+```
+
+## Technologies utilisées
+
+### Backend
+- **Spring Boot** 2.6.1
+- **Spring Security** avec JWT
+- **Spring Data JPA** avec Hibernate
+- **MySQL** 8.0
+- **MapStruct** 1.5.1 (mapping DTO/entités)
+- **Lombok** (réduction du boilerplate)
+- **Maven**
+
+### Frontend
+- **Angular** 14
+- **Angular Material** (composants UI)
+- **RxJS** (programmation réactive)
+- **TypeScript**
+
+### Outils de test
+- **JUnit 5** + **Mockito** (tests backend)
+- **JaCoCo** (couverture backend)
+- **Jest** (tests unitaires frontend)
+- **Cypress** (tests E2E)
+- **@cypress/code-coverage** (couverture E2E)
+
+### Outils de développement
+- **Postman** (collection disponible dans `ressources/postman/`)
+- **Docker** & **Docker Compose**
+
+## API Endpoints
+
+Le backend expose une API REST sur `http://localhost:8080/api` :
+
+### Authentification
+- `POST /api/auth/register` - Créer un compte
+- `POST /api/auth/login` - Se connecter
+
+### Sessions
+- `GET /api/session` - Liste des sessions
+- `GET /api/session/{id}` - Détail d'une session
+- `POST /api/session` - Créer une session (admin)
+- `PUT /api/session/{id}` - Modifier une session (admin)
+- `DELETE /api/session/{id}` - Supprimer une session (admin)
+- `POST /api/session/{id}/participate/{userId}` - Participer à une session
+- `DELETE /api/session/{id}/participate/{userId}` - Se désinscrire d'une session
+
+### Professeurs
+- `GET /api/teacher` - Liste des professeurs
+- `GET /api/teacher/{id}` - Détail d'un professeur
+
+### Utilisateurs
+- `GET /api/user/{id}` - Détail d'un utilisateur
+- `DELETE /api/user/{id}` - Supprimer son compte
+
+## Ressources
+
+- **Collection Postman** : `ressources/postman/yoga.postman_collection.json`
+- **Script SQL** : `ressources/sql/script.sql`
+
+Pour importer la collection Postman, suivez la [documentation officielle](https://learning.postman.com/docs/getting-started/importing-and-exporting-data/#importing-data-into-postman).
+
+## Tests et Couverture de code
+
+L'application dispose de tests automatisés pour garantir la qualité du code :
+- **Tests unitaires** : pour tester les composants individuels
+- **Tests d'intégration** : pour tester l'interaction entre les composants
+- **Tests end-to-end (E2E)** : pour tester l'application complète du point de vue utilisateur
+
+**Objectif de couverture** : minimum **80%** sur toutes les métriques (instructions, branches, lignes, fonctions)
+
+---
+
+### Commandes Make (recommandé)
+
+Le projet inclut un `Makefile` qui simplifie l'exécution des tests et la génération des rapports de couverture.
+
+```bash
+# Afficher toutes les commandes disponibles
+make help
+
+# Afficher les statistiques des tests (ratio unitaires/intégration)
+make stats
+
+# Lancer les tests backend avec rapports de couverture
+make test:back
+
+# Lancer les tests frontend (unitaires + intégration) avec rapports de couverture
+make test:front
+
+# Lancer les tests E2E Cypress (nécessite backend démarré)
+make test:e2e
+```
+
+**Avantages des commandes Make :**
+- Génération automatique des rapports de couverture
+- Affichage des statistiques directement dans le terminal
+- Messages colorés pour une meilleure lisibilité
+- Chemins vers les rapports HTML affichés à la fin
+
+---
+
+### Tests Backend (JUnit + Mockito)
+
+```bash
+# Avec Make (recommandé)
+make test:back
+make test:back:unit
+make test:back:integration
+
+# Ou manuellement
+cd back
+mvn clean verify                        # Tous les tests avec couverture
+mvn clean test                          # Tests unitaires uniquement
+mvn clean verify -Dskip.unit.tests=true # Tests d'intégration uniquement (possible d'avoir un failed comme il manquera la couverture unitaires)
+```
+
+> Note : Il est possible d'avoir un failed au lancement des tests unitaires sans les tests d'intégrations et réciproquement car la règle des 80% s'applique sur le code en général alors que les tests indépendants ne couvrent que leur partie concernée
+
+Les rapports de couverture JaCoCo sont générés dans :
+- **Global** : `back/target/site/jacoco/index.html`
+- **Unitaires** : `back/target/site/jacoco-unit/index.html`
+- **Intégration** : `back/target/site/jacoco-integration/index.html`
+
+---
+
+### Tests Frontend (Jest)
+
+```bash
+# Avec Make (recommandé)
+make test:front
+make test:front:unit
+make test:front:integration
+
+# Ou manuellement
+cd front
+yarn test:coverage:unit          # Tests unitaires avec couverture
+yarn test:coverage:integration   # Tests d'intégration avec couverture
+yarn test:watch                  # Mode watch (développement)
+```
+
+Les rapports de couverture sont générés dans :
+- **Unitaires** : `front/coverage/unit/lcov-report/index.html`
+- **Intégration** : `front/coverage/integration/lcov-report/index.html`
+
+---
+
+### Tests E2E (Cypress)
+
+> Note : Ni le backend ni le frontend nécessite d'être lancé étant donné que dans ces tests e2e, nous interceptons tous les appels API avec des mocks.
+
+```bash
+# Avec Make (recommandé)
+make test:e2e
+
+# Ou manuellement
+cd front
+yarn e2e      # Mode interactif
+yarn e2e:ci   # Mode CI (headless)
+```
+
+Le rapport de couverture E2E est généré dans `front/coverage/lcov-report/index.html`
+
+---
+
+## Rapports de couverture
+
+### Backend - Couverture globale (JaCoCo)
+
+**Emplacement** : `back/target/site/jacoco/index.html`
+
+![Rapport de couverture Backend - Global](docs/screenshots/coverage-backend.png)
+
+---
+
+### Backend - Tests unitaires (JaCoCo)
+
+**Emplacement** : `back/target/site/jacoco-unit/index.html`
+
+![Rapport de couverture Backend - Unitaires](docs/screenshots/coverage-backend-unit.png)
+
+---
+
+### Backend - Tests d'intégration (JaCoCo)
+
+**Emplacement** : `back/target/site/jacoco-integration/index.html`
+
+![Rapport de couverture Backend - Intégration](docs/screenshots/coverage-backend-integration.png)
+
+---
+
+### Frontend - Vue d'ensemble (Jest)
+
+![Rapport de couverture Frontend - Vue d'ensemble](docs/screenshots/coverage-front.png)
+
+---
+
+### Frontend - Tests unitaires (Jest)
+
+**Emplacement** : `front/coverage/unit/lcov-report/index.html`
+
+![Rapport de couverture Frontend - Unitaires](docs/screenshots/coverage-front-unit.png)
+
+---
+
+### Frontend - Tests d'intégration (Jest)
+
+**Emplacement** : `front/coverage/integration/lcov-report/index.html`
+
+![Rapport de couverture Frontend - Intégration](docs/screenshots/coverage-front-integration.png)
+
+---
+
+### Frontend - Tests E2E (Cypress)
+
+**Emplacement** : `front/coverage/lcov-report/index.html`
+
+![Rapport de couverture E2E Cypress](docs/screenshots/coverage-front-e2e.png)
+
+---
+
+### Visualiser les rapports de couverture
+
+```bash
+# Backend - Global
+open back/target/site/jacoco/index.html
+
+# Backend - Tests unitaires
+open back/target/site/jacoco-unit/index.html
+
+# Backend - Tests d'intégration
+open back/target/site/jacoco-integration/index.html
+
+# Frontend - Vue d'ensemble
+open front/coverage/jest/lcov-report/index.html
+
+# Frontend - Tests unitaires
+open front/coverage/unit/lcov-report/index.html
+
+# Frontend - Tests d'intégration
+open front/coverage/integration/lcov-report/index.html
+
+# Frontend - Tests E2E
+open front/coverage/lcov-report/index.html
+```
+
+> **Note** : Sur Linux, remplacez `open` par `xdg-open`. Sur Windows, utilisez `start`.
+
+## Problèmes courants
+
+### Le backend ne démarre pas
+- Vérifiez que MySQL est démarré et accessible sur le port 3306
+- Vérifiez les identifiants dans `back/src/main/resources/application.properties`
+
+### Le frontend ne se connecte pas au backend
+- Vérifiez que le backend est démarré sur le port 8080
+- Vérifiez que le frontend pointe vers `http://localhost:8080` dans les services
+
+### Problème d'encodage dans la base de données
+- Le docker compose est configuré pour UTF-8 (`utf8mb4`)
+- Si vous utilisez MySQL manuellement, assurez-vous d'utiliser le charset `utf8mb4`
