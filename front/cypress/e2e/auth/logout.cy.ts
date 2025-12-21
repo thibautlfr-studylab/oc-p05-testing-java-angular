@@ -1,3 +1,5 @@
+/// <reference types="cypress" />
+
 describe('Logout spec', () => {
   const user = {
     id: 1,

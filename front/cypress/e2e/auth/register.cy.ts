@@ -1,3 +1,5 @@
+/// <reference types="cypress" />
+
 describe('Register spec', () => {
   describe('Successful registration', () => {
     it('should register successfully and redirect to login', () => {

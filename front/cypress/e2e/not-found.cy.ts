@@ -1,3 +1,5 @@
+/// <reference types="cypress" />
+
 describe('Not Found spec', () => {
   it('should display 404 page when navigating to /404', () => {
     cy.visit('/404');

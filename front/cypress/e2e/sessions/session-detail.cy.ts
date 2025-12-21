@@ -1,3 +1,5 @@
+/// <reference types="cypress" />
+
 describe('Session Detail spec', () => {
   const adminUser = {
     id: 1,

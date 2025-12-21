@@ -1,3 +1,5 @@
+/// <reference types="cypress" />
+
 describe('Account spec', () => {
   const adminUser = {
     id: 1,
