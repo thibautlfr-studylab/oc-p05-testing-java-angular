@@ -17,6 +17,8 @@
 
     <properties>
         <java.version>1.8</java.version>
+        <skip.unit.tests>false</skip.unit.tests>
+        <skip.integration.tests>false</skip.integration.tests>
     </properties>
 
     <dependencies>
@@ -105,6 +107,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.22.2</version>
                 <configuration>
+                    <skipTests>${skip.unit.tests}</skipTests>
                     <excludes>
                         <exclude>**/*IntegrationTest.java</exclude>
                     </excludes>
@@ -117,6 +120,7 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>2.22.2</version>
                 <configuration>
+                    <skipTests>${skip.integration.tests}</skipTests>
                     <includes>
                         <include>**/*IntegrationTest.java</include>
                     </includes>
