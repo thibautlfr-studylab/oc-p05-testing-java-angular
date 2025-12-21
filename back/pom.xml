@@ -168,6 +168,16 @@
                         <configuration>
                             <dataFile>${project.build.directory}/jacoco-unit.exec</dataFile>
                             <outputDirectory>${project.build.directory}/site/jacoco-unit</outputDirectory>
+                            <excludes>
+                                <exclude>**/dto/**</exclude>
+                                <exclude>**/models/**</exclude>
+                                <exclude>**/payload/**</exclude>
+                                <exclude>**/repository/**</exclude>
+                                <exclude>**/security/**</exclude>
+                                <exclude>**/exception/**</exclude>
+                                <exclude>**/controllers/**</exclude>
+                                <exclude>**/SpringBootSecurityJwtApplication.class</exclude>
+                            </excludes>
                         </configuration>
                     </execution>
 
@@ -191,6 +201,16 @@
                         <configuration>
                             <dataFile>${project.build.directory}/jacoco-integration.exec</dataFile>
                             <outputDirectory>${project.build.directory}/site/jacoco-integration</outputDirectory>
+                            <excludes>
+                                <exclude>**/dto/**</exclude>
+                                <exclude>**/models/**</exclude>
+                                <exclude>**/payload/**</exclude>
+                                <exclude>**/repository/**</exclude>
+                                <exclude>**/security/**</exclude>
+                                <exclude>**/exception/**</exclude>
+                                <exclude>**/mapper/**</exclude>
+                                <exclude>**/SpringBootSecurityJwtApplication.class</exclude>
+                            </excludes>
                         </configuration>
                     </execution>
 

@@ -14,9 +14,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+
+import static org.mockito.Mockito.doReturn;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -34,7 +37,7 @@ public class AuthControllerIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
+    @SpyBean
     private UserRepository userRepository;
 
     @Autowired
@@ -106,9 +109,7 @@ public class AuthControllerIntegrationTest {
         assertThat(createdUser.get().getPassword()).isNotEqualTo("test!1234");
 
         // Cleanup this dynamically created user
-        if (createdUser.isPresent()) {
-            userRepository.deleteById(createdUser.get().getId());
-        }
+        createdUser.ifPresent(user -> userRepository.deleteById(user.getId()));
     }
 
     @Test
@@ -124,5 +125,27 @@ public class AuthControllerIntegrationTest {
                 .content(objectMapper.writeValueAsString(signupRequest)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Error: Email is already taken!"));
+    }
+
+    @Test
+    public void testLogin_UserNotFoundInDbAfterAuth_ShouldReturnAdminFalse() throws Exception {
+        // Given: user exists for authentication but we simulate DB returning empty
+        // when AuthController queries for admin flag
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setEmail(testUser.getEmail());
+        loginRequest.setPassword(testUserRawPassword);
+
+        // First call returns user (for Spring Security auth), second call returns empty (for admin flag check)
+        doReturn(Optional.of(testUser))
+                .doReturn(Optional.empty())
+                .when(userRepository).findByEmail(testUser.getEmail());
+
+        // When & Then
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").exists())
+                .andExpect(jsonPath("$.admin").value(false));
     }
 }
